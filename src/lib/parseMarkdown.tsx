@@ -22,6 +22,24 @@ export const markdownComponents = {
   h1: ({ ...props }) => (
     <h1 {...props} className="text-2xl my-2" />
   ),
+  table: ({ ...props }) => (
+    <table {...props} className="w-[90%] h-[200px]" />
+  ),
+  thead: ({ ...props }) => (
+    <thead {...props} className="bg-gray-400 text-xs rounded-t-lg overflow-x-auto max-w-[600px]" />
+  ),
+  tbody: ({ ...props }) => (
+    <tbody {...props} className="bg-white text-xs overflow-y-auto max-h-[400px]" />
+  ),
+  th: ({ ...props }) => (
+    <th {...props} className="p-2 text-left font-bold" />
+  ),
+  tr: ({ ...props }) => (
+    <tr {...props} className="border-b border-gray-300" />
+  ),
+  td: ({ ...props }) => (
+    <td {...props} className="p-2" />
+  ),
 }
 
 export function parseMarkdown(markdown: string): React.ReactNode[] {

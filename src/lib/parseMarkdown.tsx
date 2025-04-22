@@ -23,13 +23,13 @@ export const markdownComponents = {
     <h1 {...props} className="text-2xl my-2" />
   ),
   table: ({ ...props }) => (
-    <table {...props} className="w-[90%] h-[200px]" />
+    <table {...props} className="w-[90%] h-[200px] my-5" />
   ),
   thead: ({ ...props }) => (
-    <thead {...props} className="bg-gray-400 text-xs rounded-t-lg overflow-x-auto max-w-[600px]" />
+    <thead {...props} className="bg-gray-400 text-xs overflow-x-auto max-w-[600px]" />
   ),
   tbody: ({ ...props }) => (
-    <tbody {...props} className="bg-white text-xs overflow-y-auto max-h-[400px]" />
+    <tbody {...props} className="bg-white text-xs overflow-auto max-h-[400px] max-w-[600px]" />
   ),
   th: ({ ...props }) => (
     <th {...props} className="p-2 text-left font-bold" />

@@ -1,10 +1,10 @@
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypePrism from "rehype-prism";
 import "prismjs/themes/prism-tomorrow.css";
+import Markdown from "react-markdown";
+import rehypePrism from "rehype-prism";
+import remarkGfm from "remark-gfm";
 
-import { cn } from "@/lib/utils";
 import { markdownComponents } from "@/lib/parseMarkdown";
+import { cn } from "@/lib/utils";
 
 interface ChatBubbleProps {
   isHuman: boolean;

@@ -1,12 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
 import { useForm } from "react-hook-form";
 
+import { SendHorizontal } from "lucide-react";
 import { z } from "zod";
+import { Button } from "./ui/button";
 import { Form, FormControl, FormField, FormItem } from "./ui/form";
 import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { SendHorizontal } from "lucide-react";
 
 export const inputSchema = z.object({
   userMessage: z.string().min(1, "Message is required"),

@@ -4,6 +4,7 @@ import { Conversations } from "@/components/conversations";
 import { InputForm } from "@/components/input-form";
 import { openai } from "@/lib/server/openai";
 import { useCallback, useState } from "react";
+import { toast } from "sonner";
 
 interface Conversation {
   message: string;
@@ -42,31 +43,39 @@ export default function Home() {
       });
 
       const stream = await openai.chat.completions.create({
-        model: "gpt-4.1",
+        model: "gpt-4.1-2025-04-14",
         messages: conversationHistory,
         stream: true,
       });
 
       let streamedMessage = "";
-      for await (const part of stream) {
-        setAiMessage((prev) => prev + part.choices[0].delta.content);
+      try {
+        for await (const part of stream) {
+          const content = part.choices?.[0]?.delta?.content ?? "";
+          const finishReason = part.choices?.[0]?.finish_reason;
+  
+          setAiMessage((prev) => prev + content);
+          streamedMessage += content;
 
-        if (part.choices[0].finish_reason === "stop") {
-          setConversations((prev) => {
-            return [
+          if (finishReason === "stop") {
+            setConversations((prev) => [
               ...prev,
-              {
-                message: streamedMessage,
-                isHuman: false,
+              { 
+                message: streamedMessage, 
+                isHuman: false 
               },
-            ];
-          });
-
-          setAiMessage("");
-          break;
-        } else {
-          streamedMessage += part.choices[0].delta.content;
+            ]);
+  
+            setAiMessage("");
+            break;
+          }
         }
+      } catch (err) {
+        const message = typeof err === "object" && err !== null && "message" in err
+          ? err.message
+          : String(err);
+        toast.error(`Stream iteration failed: ${message}`);
+        return;
       }
     }, [userMessage, conversations]
   );

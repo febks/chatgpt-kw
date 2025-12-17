@@ -1,8 +1,8 @@
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY!,
-  dangerouslyAllowBrowser: true,
+  apiKey: process.env.OPENAI_API_KEY, // Remove NEXT_PUBLIC_ prefix
+  // Remove dangerouslyAllowBrowser - this should only run server-side
 });
 
 export { openai };

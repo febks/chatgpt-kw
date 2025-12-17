@@ -2,7 +2,6 @@
 
 import { Conversations } from "@/components/conversations";
 import { InputForm } from "@/components/input-form";
-import { openai } from "@/lib/server/openai";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
@@ -12,7 +11,7 @@ interface Conversation {
 }
 
 interface ChatMessage {
-  role: "user" | "assistant";
+  role:  "user" | "assistant";
   content: string;
 }
 
@@ -33,7 +32,7 @@ export default function Home() {
       setUserMessage("");
 
       const conversationHistory: ChatMessage[] = conversations.map((con) => ({
-        role: con.isHuman ? "user" : "assistant",
+        role: con.isHuman ?  "user" : "assistant",
         content: con.message,
       }));
 
@@ -42,39 +41,60 @@ export default function Home() {
         content: userMessage,
       });
 
-      const stream = await openai.chat.completions.create({
-        model: "gpt-4.1-2025-04-14",
-        messages: conversationHistory,
-        stream: true,
-      });
-
-      let streamedMessage = "";
       try {
-        for await (const part of stream) {
-          const content = part.choices?.[0]?.delta?.content ?? "";
-          const finishReason = part.choices?.[0]?.finish_reason;
-  
-          setAiMessage((prev) => prev + content);
-          streamedMessage += content;
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers:  {
+            "Content-Type":  "application/json",
+          },
+          body: JSON.stringify({ messages: conversationHistory }),
+        });
 
-          if (finishReason === "stop") {
-            setConversations((prev) => [
-              ...prev,
-              { 
-                message: streamedMessage, 
-                isHuman: false 
-              },
-            ]);
-  
-            setAiMessage("");
-            break;
+        if (!response.ok) {
+          throw new Error("Failed to fetch");
+        }
+
+        const reader = response.body?. getReader();
+        const decoder = new TextDecoder();
+        let streamedMessage = "";
+
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder. decode(value);
+            const lines = chunk.split("\n").filter(line => line.trim());
+
+            for (const line of lines) {
+              try {
+                const { content, finishReason } = JSON.parse(line);
+                
+                setAiMessage((prev) => prev + content);
+                streamedMessage += content;
+
+                if (finishReason === "stop") {
+                  setConversations((prev) => [
+                    ...prev,
+                    { 
+                      message: streamedMessage, 
+                      isHuman: false 
+                    },
+                  ]);
+                  setAiMessage("");
+                }
+              } catch (error) {
+                console.error("Failed to parse line:", line);
+                console.error(error);
+              }
+            }
           }
         }
       } catch (err) {
         const message = typeof err === "object" && err !== null && "message" in err
           ? err.message
           : String(err);
-        toast.error(`Stream iteration failed: ${message}`);
+        toast.error(`Request failed: ${message}`);
         return;
       }
     }, [userMessage, conversations]
